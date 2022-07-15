@@ -5,6 +5,8 @@ VERSION=$(curl --silent \
     | grep '"tag_name"' \
     | sed -E 's/.*"([^"]+)".*/\1/')
 
+# /usr/local/bin/argocd should not exist 
+sudo rm -rf /usr/local/bin/argocd
 sudo curl -sSL -o /usr/local/bin/argocd \
     https://github.com/argoproj/argo-cd/releases/download/$VERSION/argocd-linux-amd64
 
@@ -16,12 +18,16 @@ helm repo add argo \
     https://argoproj.github.io/argo-helm
 
 
+export INGRESS_HOST=$(minikube ip)
+echo "INGRESS_HOST:"
+echo $INGRESS_HOST
+
 helm upgrade --install \
-    argocd argo/argo-cd \
-    --namespace argocd \
-    --set server.ingress.hosts="{argocd.$INGRESS_HOST.nip.io}" \
-    --values  argocd-values.yaml \
-    --wait
+   argocd argo/argo-cd \
+   --namespace argocd \
+   --set server.ingress.hosts="{argocd.$INGRESS_HOST.nip.io}" \
+   --values  argocd-values.yaml \
+   --wait
 
 
 export PASS=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo)
