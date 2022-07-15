@@ -10,4 +10,6 @@ kubectl --namespace ingress-nginx wait \
     --timeout=120s
 
 export INGRESS_HOST=$(minikube ip)
+echo "INGRESS_HOST:"
+echo $INGRESS_HOST
 
